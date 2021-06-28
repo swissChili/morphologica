@@ -8,4 +8,5 @@ make
 
 # Run macdeployqt
 bundlename='Morphologica.app'
+rm -rf "Morphologica.dmg"
 macdeployqt "$bundlename" -verbose=2 -dmg
