@@ -62,6 +62,7 @@ add_executable(Morphologica
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
     set_target_properties(Morphologica PROPERTIES
         MACOSX_BUNDLE TRUE
+        RESOURCE ${RESOURCE_FILES}
         OUTPUT_NAME "${PROJECT_BUNDLE_NAME}"
     )
 endif()
