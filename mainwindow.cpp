@@ -37,9 +37,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->pointSpinBox->setValue(numPoints);
 
-    connect(ui->pointListView->selectionModel(), &QItemSelectionModel::currentChanged,
-            this, &MainWindow::pointSelectionChanged);
-
     connect(ui->sourcesListView->selectionModel(), &QItemSelectionModel::currentChanged,
             this, &MainWindow::sourceSelectionChanged);
 }
@@ -58,7 +55,12 @@ void MainWindow::displayEntry(DataEntry &entry)
     scene->clear();
     currentEntry = &entry;
 
+    if (ui->pointListView->selectionModel())
+        disconnect(ui->pointListView->selectionModel(), &QItemSelectionModel::currentChanged,
+                   this, &MainWindow::pointSelectionChanged);
     ui->pointListView->setModel(entry.getPointModel());
+    connect(ui->pointListView->selectionModel(), &QItemSelectionModel::currentChanged,
+            this, &MainWindow::pointSelectionChanged);
     qDebug() << "Model" << entry.getPointModel()->rowCount();
 
     scene->addPixmap(entry.getImage());
@@ -101,7 +103,7 @@ void MainWindow::viewClicked(QPointF denormalized)
 
 void MainWindow::pointSelectionChanged(const QModelIndex &current, const QModelIndex &)
 {
-    qDebug() << "Activated" << current;
+    qDebug() << "Point selection changed" << current;
     currentEntry->setSelectedPoint(current.row());
 
     displayEntry(*currentEntry);
@@ -109,7 +111,7 @@ void MainWindow::pointSelectionChanged(const QModelIndex &current, const QModelI
 
 void MainWindow::sourceSelectionChanged(const QModelIndex &current, const QModelIndex &)
 {
-    qDebug() << "clcked source";
+    qDebug() << "Source selection changed";
     displayEntry(*listModel->entryAt(current.row()));
 }
 
@@ -150,6 +152,9 @@ void MainWindow::on_pointSpinBox_valueChanged(int p)
     {
         e->setNumPoints(p);
     }
+
+    if (currentEntry)
+        displayEntry(*currentEntry);
 }
 
 void MainWindow::on_actionExport_triggered()
