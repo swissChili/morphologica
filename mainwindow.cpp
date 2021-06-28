@@ -16,19 +16,32 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    ui->centralwidget->setLayout(ui->centralLayout);
+    setCentralWidget(ui->centralSplitter);
 
     connect(graphicsView, &GraphicsView::clickedAt, this, &MainWindow::viewClicked);
     graphicsView->setScene(scene);
     thisIsStupid->addWidget(graphicsView);
     ui->graphicsView->setLayout(thisIsStupid);
 
+    ui->graphicsView->setContentsMargins(0, 0, 0, 0);
+    thisIsStupid->setContentsMargins(0, 0, 0, 0);
+
+    ui->centralSplitter->setContentsMargins(8, 8, 8, 8);
+
     ui->sourcesListView->setModel(listModel);
 
-    connect(listModel, &QAbstractListModel::rowsInserted, [](const auto &parent, int first, int last)
+    connect(listModel, &QAbstractListModel::rowsInserted, [](const auto &, int first, int last)
     {
         qDebug() << "Inserted!" << first << last;
     });
+
+    ui->pointSpinBox->setValue(numPoints);
+
+    connect(ui->pointListView->selectionModel(), &QItemSelectionModel::currentChanged,
+            this, &MainWindow::pointSelectionChanged);
+
+    connect(ui->sourcesListView->selectionModel(), &QItemSelectionModel::currentChanged,
+            this, &MainWindow::sourceSelectionChanged);
 }
 
 MainWindow::~MainWindow()
@@ -37,6 +50,7 @@ MainWindow::~MainWindow()
     delete scene;
     delete graphicsView;
     delete thisIsStupid;
+    delete listModel;
 }
 
 void MainWindow::displayEntry(DataEntry &entry)
@@ -48,7 +62,6 @@ void MainWindow::displayEntry(DataEntry &entry)
     qDebug() << "Model" << entry.getPointModel()->rowCount();
 
     scene->addPixmap(entry.getImage());
-    ui->entryName->setText(entry.getName());
 
     for (int i = 0; i < entry.getPoints().size(); i++)
     {
@@ -65,8 +78,8 @@ void MainWindow::displayEntry(DataEntry &entry)
                 pen = QPen(QColor(0, 255, 0, 255));
                 brush = QBrush(QColor(0, 255, 0, 255));
             }
-            QPoint denormalized((double)entry.getImage().width() * point.x(),
-                                (double)entry.getImage().height() * point.y());
+            QPoint denormalized((double)entry.getImage().width() * point.x() - 5,
+                                (double)entry.getImage().height() * point.y() - 5);
 
             scene->addEllipse(denormalized.x(), denormalized.y(), 10, 10,
                               pen, brush);
@@ -86,43 +99,64 @@ void MainWindow::viewClicked(QPointF denormalized)
     displayEntry(*currentEntry);
 }
 
-void MainWindow::on_pointListView_activated(const QModelIndex &index)
+void MainWindow::pointSelectionChanged(const QModelIndex &current, const QModelIndex &)
 {
-    displayEntry(*currentEntry);
-}
-
-void MainWindow::on_pointListView_clicked(const QModelIndex &index)
-{
-    qDebug() << "Activated" << index;
-    currentEntry->setSelectedPoint(index.row());
+    qDebug() << "Activated" << current;
+    currentEntry->setSelectedPoint(current.row());
 
     displayEntry(*currentEntry);
 }
 
-void MainWindow::on_addSourceButton_clicked()
+void MainWindow::sourceSelectionChanged(const QModelIndex &current, const QModelIndex &)
 {
+    qDebug() << "clcked source";
+    displayEntry(*listModel->entryAt(current.row()));
+}
+
+void MainWindow::addSource()
+{
+    bool ok;
+
     QString name = QInputDialog::getText(this, "Add data source",
-                                         "Data source name", QLineEdit::Normal);
+                                         "Data source name", QLineEdit::Normal,
+                                         "", &ok);
+    if (!ok)
+        return;
+
     QString fileName = QFileDialog::getOpenFileName(this, "Add data source",
                                                     QDir::homePath(),
                                                     "Image Files (*.png *.jpg *.jpeg *.bmp)");
+
+    if (fileName == "")
+        return;
 
     DataEntry entry(fileName, name, numPoints);
     listModel->addEntry(std::move(entry));
 
     qDebug() << "Added entry to list model";
+
+    statusBar()->showMessage("Added source " + name, defaultTimeout);
 }
 
-void MainWindow::on_sourcesListView_clicked(const QModelIndex &index)
+void MainWindow::on_addSourceButton_clicked()
 {
-    qDebug() << "clcked source";
-    displayEntry(*listModel->entryAt(index.row()));
+    addSource();
 }
 
-void MainWindow::on_pushButton_clicked()
+void MainWindow::on_pointSpinBox_valueChanged(int p)
 {
-    QString fileName = QFileDialog::getSaveFileName(this, "Export as TSV",
-                                                    QDir::homePath(), "TSV files (*.tsv);; Text files (*.txt)");
+    numPoints = p;
+    for (auto e : listModel->getEntries())
+    {
+        e->setNumPoints(p);
+    }
+}
+
+void MainWindow::on_actionExport_triggered()
+{
+    QString fileName = QFileDialog::getSaveFileName(this, "Export data",
+                                                    QDir::homePath(),
+                                                    "TSV files (*.tsv);;Text files (*.txt)");
 
     QString ex;
 
@@ -135,4 +169,6 @@ void MainWindow::on_pushButton_clicked()
     f.open(QIODevice::WriteOnly | QIODevice::Text);
     f.write(ex.toUtf8());
     f.close();
+
+    statusBar()->showMessage("Exported " + fileName, defaultTimeout);
 }
