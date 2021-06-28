@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>Morphologica</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="res/resources.qrc">
+    <normaloff>:/AppIcon</normaloff>:/AppIcon</iconset>
+  </property>
   <property name="windowOpacity">
    <double>1.000000000000000</double>
   </property>
@@ -141,7 +145,7 @@
      <property name="minimumSize">
       <size>
        <width>400</width>
-       <height>600</height>
+       <height>500</height>
       </size>
      </property>
     </widget>
@@ -183,6 +187,8 @@
    </property>
   </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="res/resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

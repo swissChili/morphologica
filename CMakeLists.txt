@@ -11,6 +11,12 @@ set(PROjECT_BUNDLE_NAME Morphologica)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
+set(RESOURCE_FILES
+    res/resources.qrc
+    res/AppIcon.png
+    res/AppIcon.icns
+)
+
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
@@ -33,7 +39,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
     set(MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION})
     set(MACOSX_BUNDLE_COPYRIGHT ${PROJECT_COPYRIGHT})
     set(MACOSX_BUNDLE_GUI_IDENTIFIER ${PROJECT_DOMAIN})
-#    set(MACOSX_BUNDLE_ICON_FILE ${ICON_NAME})
+    set(MACOSX_BUNDLE_ICON_FILE AppIcon)
 else(CMAKE_BUILD_TYPE STREQUAL "Release")
     set(CMAKE_BUILD_TYPE Debug)
 endif()
@@ -50,6 +56,7 @@ add_executable(Morphologica
     graphicsview.h
     dataentrylistmodel.cpp
     dataentrylistmodel.h
+    res/resources.qrc
 )
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
