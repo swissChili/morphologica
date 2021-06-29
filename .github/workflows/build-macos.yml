@@ -13,5 +13,5 @@ jobs:
       - name: Upload .dmg
         uses: actions/upload-artifact@v2
         with:
-          name: Morphologica.dmg
-          path: build/Morphologica.dmg
+          name: Morphologica.zip
+          path: build/Morphologica.zip

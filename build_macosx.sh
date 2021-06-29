@@ -9,7 +9,7 @@ make
 # Run macdeployqt
 bundlename='Morphologica.app'
 rm -rf "Morphologica.dmg"
-macdeployqt "$bundlename" -verbose=2 -dmg
+macdeployqt "$bundlename" -verbose=2
 
 # Fix it with macdeployqtfix
 
@@ -21,3 +21,6 @@ fi
 echo "$Qt6_DIR qt6 dir, $Qt5_DIR qt5 dir"
 env
 python3 macdeployqtfix/macdeployqtfix.py "$bundlename/Contents/MacOS/Morphologica" /usr/local/Cellar/qt6/6.0
+
+# Compress app
+zip -r Morphologica.zip Morphologica.app
