@@ -1,0 +1,17 @@
+name: Build on Mac OS X
+on: [push]
+jobs:
+  build:
+    runs-on: macOS-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Install Qt with Brew
+        run: brew install qt
+      - name: Build app
+        run: sh build_macosx.sh
+      - name: Upload .dmg
+        uses: actions/upload-artifact@v2
+        with:
+          name: Morphologica.dmg
+          path: **/*.dmg
