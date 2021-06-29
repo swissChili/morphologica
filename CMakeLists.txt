@@ -29,7 +29,7 @@ find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
 
 add_custom_target(MacOS SOURCES cmake/MacOSXBundleInfo.plist.in build_macosx.sh)
-add_custom_target(CI SOURCES .travis.yml .github/workflows/build-macos.yml)
+add_custom_target(CI SOURCES .github/workflows/build-macos.yml)
 
 set(OS_BUNDLE "")
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
