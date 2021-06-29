@@ -20,7 +20,4 @@ fi
 # Needs qt 6
 echo "$Qt6_DIR qt6 dir, $Qt5_DIR qt5 dir"
 env
-python3 macdeployqtfix/macdeployqtfix.py "$bundlename/Contents/MacOS/Morphologica" /usr/local/Cellar/qt6/6.0
-
-# Compress app
-zip -r Morphologica.zip Morphologica.app
+python3 macdeployqtfix/macdeployqtfix.py "$bundlename/Contents/MacOS/Morphologica" /usr/local/Cellar/qt/6.1.0_1
