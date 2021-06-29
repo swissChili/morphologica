@@ -10,3 +10,14 @@ make
 bundlename='Morphologica.app'
 rm -rf "Morphologica.dmg"
 macdeployqt "$bundlename" -verbose=2 -dmg
+
+# Fix it with macdeployqtfix
+
+if [ ! -d macdeployqtfix ]; then
+    git clone https://github.com/iltommi/macdeployqtfix.git
+fi
+
+# Needs qt 6
+echo "$Qt6_DIR qt6 dir, $Qt5_DIR qt5 dir"
+env
+python3 macdeployqtfix/macdeployqtfix.py "$bundlename/Contents/MacOS/Morphologica" /usr/local/Cellar/qt6/6.0
