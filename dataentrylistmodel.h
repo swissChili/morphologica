@@ -44,6 +44,7 @@ public:
     }
 
     void clear();
+    void removeAt(int index);
 
 private:
     QList<DataEntry *> entries;

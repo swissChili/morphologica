@@ -52,3 +52,13 @@ void DataEntryListModel::clear()
 
     endRemoveRows();
 }
+
+void DataEntryListModel::removeAt(int index)
+{
+    beginRemoveRows(QModelIndex(), index, index);
+
+    delete entries[index];
+    entries.removeAt(index);
+
+    endRemoveRows();
+}

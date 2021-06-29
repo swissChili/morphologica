@@ -245,7 +245,14 @@ void MainWindow::on_actionExport_triggered()
 
 void MainWindow::on_removeSourceButton_clicked()
 {
-    // TODO lmao
+    QModelIndex selected = ui->sourcesListView->selectionModel()->selectedRows()[0];
+
+    listModel->removeAt(selected.row());
+
+    // Select the previous item
+    ui->sourcesListView->selectionModel()->select(
+                listModel->index(selected.row() - 1, 0),
+                QItemSelectionModel::Select);
 }
 
 void MainWindow::on_actionSave_project_triggered()
