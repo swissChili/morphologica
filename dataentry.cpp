@@ -118,6 +118,8 @@ DataEntry::DataEntry(QJsonObject object)
 void DataEntry::clickedAt(QPointF normalized)
 {
     points[selectedPoint] = normalized;
+
+    pointModel->setData(pointModel->index(selectedPoint, 0), QString::number(selectedPoint) + " ✔", Qt::DisplayRole);
 }
 
 void DataEntry::updatePointList()
@@ -126,7 +128,12 @@ void DataEntry::updatePointList()
 
     for (int i = 1; i <= numPoints; i++)
     {
-        pts.append(QString::number(i));
+        QString str = QString::number(i);
+
+        if (points.size() > i && points[i].has_value())
+            str += " ✔"; // U+2714
+
+        pts.append(str);
     }
 
     pointModel->setStringList(pts);

@@ -36,8 +36,8 @@ private:
         defaultTimeout = 1500;
     DataEntry *currentEntry = nullptr;
 
-    QColor defaultColor = QColor(52, 239, 121, 255),
-        focusedColor = QColor(244, 9, 201, 255);
+    QColor defaultColor = QColor(36, 109, 244, 255),
+        focusedColor = QColor(244, 36, 74, 255);
     QPen defaultPen = QPen(defaultColor);
     QBrush defaultBrush = QBrush(defaultColor);
 
