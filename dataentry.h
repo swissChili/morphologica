@@ -64,6 +64,9 @@ public:
 
     void toJsonObject(QJsonObject &json);
 
+    void nextPoint();
+    void previousPoint();
+
 public slots:
     void clickedAt(QPointF normalized);
 

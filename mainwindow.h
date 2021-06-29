@@ -36,7 +36,8 @@ private:
         defaultTimeout = 1500;
     DataEntry *currentEntry = nullptr;
 
-    QColor defaultColor = QColor(0, 0, 255, 255);
+    QColor defaultColor = QColor(52, 239, 121, 255),
+        focusedColor = QColor(244, 9, 201, 255);
     QPen defaultPen = QPen(defaultColor);
     QBrush defaultBrush = QBrush(defaultColor);
 
@@ -44,8 +45,14 @@ private:
 
     QString saveProjectPath = "";
 
+    qreal currentScale = 1.0;
+
     void exportJsonTo(QString fileName);
     void loadFromJson(QString fileName);
+
+    void zoomChanged(int decimalPos);
+
+    void updatePointSelectionModel();
 
 private slots:
     void viewClicked(QPointF denormalized);
@@ -60,5 +67,10 @@ private slots:
     void on_actionSave_project_triggered();
     void on_actionSave_project_as_triggered();
     void on_actionOpen_project_triggered();
+    void on_zoomSlider_valueChanged(int value);
+    void on_actionZoom_in_triggered();
+    void on_actionZoom_out_triggered();
+    void on_actionNext_point_triggered();
+    void on_actionPrevious_point_triggered();
 };
 #endif // MAINWINDOW_H

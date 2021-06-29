@@ -6,6 +6,7 @@
 #include <QFileDialog>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <algorithm>
 #include "graphicsview.h"
 
 MainWindow::MainWindow(QWidget *parent)
@@ -41,6 +42,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->sourcesListView->selectionModel(), &QItemSelectionModel::currentChanged,
             this, &MainWindow::sourceSelectionChanged);
+
+    ui->zoomSlider->setValue(50);
+    qDebug() << "zoomSlider->value()" << ui->zoomSlider->value();
 }
 
 MainWindow::~MainWindow()
@@ -79,8 +83,8 @@ void MainWindow::displayEntry(DataEntry &entry)
 
             if (i == entry.getSelectedPoint())
             {
-                pen = QPen(QColor(0, 255, 0, 255));
-                brush = QBrush(QColor(0, 255, 0, 255));
+                pen = QPen(focusedColor);
+                brush = QBrush(focusedColor);
             }
             QPoint denormalized((double)entry.getImage().width() * point.x() - 5,
                                 (double)entry.getImage().height() * point.y() - 5);
@@ -145,6 +149,26 @@ void MainWindow::loadFromJson(QString fileName)
     }
 }
 
+void MainWindow::zoomChanged(int decimalPos)
+{
+    qreal scale = (qreal)decimalPos / 99.0 + 0.2;
+    qreal factor = scale / currentScale;
+
+    qDebug() << "Scaling to" << decimalPos << scale;
+
+    graphicsView->scale(factor, factor);
+    currentScale = scale;
+}
+
+void MainWindow::updatePointSelectionModel()
+{
+    ui->pointListView->selectionModel()->select(
+                currentEntry->getPointModel()->index(currentEntry->getSelectedPoint(), 0),
+                QItemSelectionModel::ClearAndSelect);
+
+    displayEntry(*currentEntry);
+}
+
 void MainWindow::viewClicked(QPointF denormalized)
 {
     if (!currentEntry)
@@ -177,7 +201,7 @@ void MainWindow::sourceSelectionChanged(const QModelIndex &current, const QModel
     // Selects the current point
     QModelIndex index = ui->pointListView->model()
             ->index(listModel->entryAt(current.row())->getSelectedPoint(), 0);
-    ui->pointListView->selectionModel()->select(index, QItemSelectionModel::Select);
+    ui->pointListView->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
 }
 
 void MainWindow::addSource()
@@ -252,7 +276,7 @@ void MainWindow::on_removeSourceButton_clicked()
     // Select the previous item
     ui->sourcesListView->selectionModel()->select(
                 listModel->index(selected.row() - 1, 0),
-                QItemSelectionModel::Select);
+                QItemSelectionModel::ClearAndSelect);
 }
 
 void MainWindow::on_actionSave_project_triggered()
@@ -289,4 +313,38 @@ void MainWindow::on_actionOpen_project_triggered()
     saveProjectPath = fileName;
 
     loadFromJson(fileName);
+}
+
+void MainWindow::on_zoomSlider_valueChanged(int value)
+{
+    qDebug() << "zoomSlider_valueChanged" << value;
+    zoomChanged(value);
+}
+
+void MainWindow::on_actionZoom_in_triggered()
+{
+    ui->zoomSlider->setValue(std::min(ui->zoomSlider->value() + 5, 99));
+}
+
+void MainWindow::on_actionZoom_out_triggered()
+{
+    ui->zoomSlider->setValue(std::max(ui->zoomSlider->value() - 5, 0));
+}
+
+void MainWindow::on_actionNext_point_triggered()
+{
+    if (currentEntry)
+    {
+        currentEntry->nextPoint();
+        updatePointSelectionModel();
+    }
+}
+
+void MainWindow::on_actionPrevious_point_triggered()
+{
+    if (currentEntry)
+    {
+        currentEntry->previousPoint();
+        updatePointSelectionModel();
+    }
 }

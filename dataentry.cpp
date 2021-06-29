@@ -74,6 +74,16 @@ void DataEntry::toJsonObject(QJsonObject &json)
     json["points"] = pointArray;
 }
 
+void DataEntry::nextPoint()
+{
+    selectedPoint = (selectedPoint + 1) % numPoints;
+}
+
+void DataEntry::previousPoint()
+{
+    selectedPoint = (selectedPoint - 1) % numPoints;
+}
+
 DataEntry::DataEntry(QJsonObject object)
 {
     name = object["name"].toString();
