@@ -172,6 +172,12 @@ void MainWindow::sourceSelectionChanged(const QModelIndex &current, const QModel
 {
     qDebug() << "Source selection changed";
     displayEntry(*listModel->entryAt(current.row()));
+
+    // UNREADABLE
+    // Selects the current point
+    QModelIndex index = ui->pointListView->model()
+            ->index(listModel->entryAt(current.row())->getSelectedPoint(), 0);
+    ui->pointListView->selectionModel()->select(index, QItemSelectionModel::Select);
 }
 
 void MainWindow::addSource()
