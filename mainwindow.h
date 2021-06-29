@@ -42,6 +42,11 @@ private:
 
     DataEntryListModel *listModel;
 
+    QString saveProjectPath = "";
+
+    void exportJsonTo(QString fileName);
+    void loadFromJson(QString fileName);
+
 private slots:
     void viewClicked(QPointF denormalized);
     void pointSelectionChanged(const QModelIndex &current, const QModelIndex &previous);
@@ -51,5 +56,9 @@ private slots:
     void on_addSourceButton_clicked();
     void on_pointSpinBox_valueChanged(int arg1);
     void on_actionExport_triggered();
+    void on_removeSourceButton_clicked();
+    void on_actionSave_project_triggered();
+    void on_actionSave_project_as_triggered();
+    void on_actionOpen_project_triggered();
 };
 #endif // MAINWINDOW_H

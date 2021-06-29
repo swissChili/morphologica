@@ -58,7 +58,7 @@ add_executable(Morphologica
     dataentrylistmodel.cpp
     dataentrylistmodel.h
     res/resources.qrc
-	${APP_ICON_MACOSX}
+    ${APP_ICON_MACOSX}
 )
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")

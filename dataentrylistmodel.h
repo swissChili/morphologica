@@ -43,6 +43,8 @@ public:
         return entries;
     }
 
+    void clear();
+
 private:
     QList<DataEntry *> entries;
 };

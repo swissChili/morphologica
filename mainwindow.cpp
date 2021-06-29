@@ -4,6 +4,8 @@
 #include <QDebug>
 #include <QInputDialog>
 #include <QFileDialog>
+#include <QJsonArray>
+#include <QJsonDocument>
 #include "graphicsview.h"
 
 MainWindow::MainWindow(QWidget *parent)
@@ -89,8 +91,65 @@ void MainWindow::displayEntry(DataEntry &entry)
     }
 }
 
+void MainWindow::exportJsonTo(QString fileName)
+{
+    QJsonObject json;
+    json["numPoints"] = numPoints;
+
+    QJsonArray sources;
+
+    for (auto *entry : listModel->getEntries())
+    {
+        QJsonObject entryObject;
+        entry->toJsonObject(entryObject);
+        sources.append(entryObject);
+    }
+
+    json["sources"] = sources;
+
+    QJsonDocument doc{json};
+
+    QFile of{fileName};
+    of.open(QIODevice::WriteOnly | QIODevice::Text);
+
+    of.write(doc.toJson());
+
+    of.close();
+}
+
+void MainWindow::loadFromJson(QString fileName)
+{
+    QFile file(fileName);
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+    QByteArray text = file.readAll();
+    file.close();
+
+    QJsonDocument doc = QJsonDocument::fromJson(text);
+
+    numPoints = doc["numPoints"].toInt(5);
+
+    qDebug() << "numPoints" << numPoints;
+
+    qDebug() << doc["sources"];
+
+    QJsonArray sources = doc["sources"].toArray();
+
+    listModel->clear();
+
+    for (auto s : sources)
+    {
+        qDebug() << "Loaded entry";
+        DataEntry entry(s.toObject());
+        qDebug() << "--- adding entry named" << entry.getName();
+        listModel->addEntry(std::move(entry));
+    }
+}
+
 void MainWindow::viewClicked(QPointF denormalized)
 {
+    if (!currentEntry)
+        return;
+
     // TODO: what?
     QPointF size(denormalized.x() / (double)currentEntry->getImage().width(),
                  denormalized.y() / (double)currentEntry->getImage().height());
@@ -176,4 +235,45 @@ void MainWindow::on_actionExport_triggered()
     f.close();
 
     statusBar()->showMessage("Exported " + fileName, defaultTimeout);
+}
+
+void MainWindow::on_removeSourceButton_clicked()
+{
+    // TODO lmao
+}
+
+void MainWindow::on_actionSave_project_triggered()
+{
+    if (saveProjectPath == "")
+        saveProjectPath = QFileDialog::getSaveFileName(this, "Save project",
+                                                       QDir::homePath(),
+                                                       "Morphologica project (*.morph)");
+
+    if (saveProjectPath == "")
+        return; // hit cancel
+
+    exportJsonTo(saveProjectPath);
+}
+
+void MainWindow::on_actionSave_project_as_triggered()
+{
+    saveProjectPath = QFileDialog::getSaveFileName(this, "Save project as",
+                                                   QDir::homePath(),
+                                                   "Morphologica project (*.morph)");
+
+    if (saveProjectPath == "")
+        return; // hit cancel
+
+    exportJsonTo(saveProjectPath);
+}
+
+void MainWindow::on_actionOpen_project_triggered()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, "Open project",
+                                                    QDir::homePath(),
+                                                    "Morphologica project (*.morph)");
+
+    saveProjectPath = fileName;
+
+    loadFromJson(fileName);
 }

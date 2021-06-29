@@ -38,3 +38,17 @@ QVariant DataEntryListModel::data(const QModelIndex &index, int role) const
 
     return QVariant();
 }
+
+void DataEntryListModel::clear()
+{
+    beginRemoveRows(QModelIndex(), 0, entries.size());
+
+    for (auto *e : entries)
+    {
+        delete e;
+    }
+
+    entries.clear();
+
+    endRemoveRows();
+}

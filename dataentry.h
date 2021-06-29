@@ -3,6 +3,7 @@
 
 #include <QPixmap>
 #include <QStringListModel>
+#include <QJsonObject>
 #include <optional>
 
 #include "graphicsview.h"
@@ -14,6 +15,7 @@ class DataEntry : QObject
 public:
     DataEntry(QString path, QString name, int numPoints);
     DataEntry(const DataEntry &&entry);
+    DataEntry(QJsonObject object);
     ~DataEntry();
 
     QString getName() const
@@ -60,12 +62,15 @@ public:
 
     QString formatToString();
 
+    void toJsonObject(QJsonObject &json);
+
 public slots:
     void clickedAt(QPointF normalized);
 
 private:
     QPixmap image;
     QString name;
+    QString imagePath;
     QVector<std::optional<QPointF>> points;
 
     int numPoints;
