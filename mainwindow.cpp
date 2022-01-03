@@ -6,7 +6,9 @@
 #include <QFileDialog>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QMimeData>
 #include <algorithm>
+#include <QPixmap>
 #include "graphicsview.h"
 
 MainWindow::MainWindow(QWidget *parent)
@@ -44,7 +46,8 @@ MainWindow::MainWindow(QWidget *parent)
             this, &MainWindow::sourceSelectionChanged);
 
     ui->zoomSlider->setValue(50);
-    qDebug() << "zoomSlider->value()" << ui->zoomSlider->value();
+
+    setAcceptDrops(true);
 }
 
 MainWindow::~MainWindow()
@@ -169,6 +172,33 @@ void MainWindow::updatePointSelectionModel()
     displayEntry(*currentEntry);
 }
 
+void MainWindow::dragEnterEvent(QDragEnterEvent *event)
+{
+    if (event->mimeData()->hasImage())
+    {
+        event->acceptProposedAction();
+    }
+}
+
+void MainWindow::dropEvent(QDropEvent *event)
+{
+    QPixmap pixmap(event->mimeData()->imageData().toByteArray());
+
+    bool ok;
+
+    QString name = QInputDialog::getText(this, "Add data source",
+                                         "Data source name", QLineEdit::Normal,
+                                         "", &ok);
+
+    if (!ok)
+        return;
+
+    DataEntry entry(pixmap, name, numPoints);
+    listModel->addEntry(std::move(entry));
+
+    statusBar()->showMessage("Added source " + name, defaultTimeout);
+}
+
 void MainWindow::viewClicked(QPointF denormalized)
 {
     if (!currentEntry)
@@ -204,7 +234,7 @@ void MainWindow::sourceSelectionChanged(const QModelIndex &current, const QModel
     ui->pointListView->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
 }
 
-void MainWindow::addSource()
+void MainWindow::addSource(QString fileName = "")
 {
     bool ok;
 
@@ -214,9 +244,10 @@ void MainWindow::addSource()
     if (!ok)
         return;
 
-    QString fileName = QFileDialog::getOpenFileName(this, "Add data source",
-                                                    QDir::homePath(),
-                                                    "Image Files (*.png *.jpg *.jpeg *.bmp)");
+    if (fileName == "")
+        fileName = QFileDialog::getOpenFileName(this, "Add data source",
+                                                QDir::homePath(),
+                                                "Image Files (*.png *.jpg *.jpeg *.bmp)");
 
     if (fileName == "")
         return;

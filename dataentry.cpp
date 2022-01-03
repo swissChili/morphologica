@@ -2,11 +2,17 @@
 
 #include <QJsonArray>
 #include <QDebug>
+#include <QBuffer>
 
 DataEntry::DataEntry(QString path, QString name, int numPoints)
-    : image(path)
+    : DataEntry(QPixmap(path), name, numPoints)
+{
+    imagePath = path;
+}
+
+DataEntry::DataEntry(QPixmap pixmap, QString name, int numPoints)
+    : image(pixmap)
     , name(name)
-    , imagePath(path)
     , points(numPoints)
     , numPoints(numPoints)
     , pointModel(new QStringListModel)
@@ -49,7 +55,14 @@ QString DataEntry::formatToString()
 void DataEntry::toJsonObject(QJsonObject &json)
 {
     json["name"] = name;
-    json["imagePath"] = imagePath;
+    // json["imagePath"] = imagePath;
+    QBuffer buffer;
+    buffer.open(QIODevice::WriteOnly);
+    image.save(&buffer, "JPG");
+    QString pixmapString(buffer.data().toBase64());
+    json["pixmap"] = pixmapString;
+
+    qDebug() << "pixmap string size is" << pixmapString.size();
 
     QJsonArray pointArray;
 
@@ -88,8 +101,8 @@ DataEntry::DataEntry(QJsonObject object)
 {
     name = object["name"].toString();
     qDebug() << "name is" << name;
-    imagePath = object["imagePath"].toString();
-    image.load(imagePath);
+    QByteArray pixmapData = QByteArray::fromBase64(object["pixmap"].toString().toUtf8());
+    image.load(pixmapData);
 
     pointModel = new QStringListModel;
 
@@ -119,7 +132,7 @@ void DataEntry::clickedAt(QPointF normalized)
 {
     points[selectedPoint] = normalized;
 
-    pointModel->setData(pointModel->index(selectedPoint, 0), QString::number(selectedPoint) + " ✔", Qt::DisplayRole);
+    pointModel->setData(pointModel->index(selectedPoint, 0), QString::number(selectedPoint + 1) + " ✔", Qt::DisplayRole);
 }
 
 void DataEntry::updatePointList()

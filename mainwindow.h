@@ -8,6 +8,7 @@
 #include <QPen>
 #include <QBrush>
 #include <QStringListModel>
+#include <QDragEnterEvent>
 
 #include "dataentry.h"
 #include "dataentrylistmodel.h"
@@ -54,11 +55,16 @@ private:
 
     void updatePointSelectionModel();
 
+    void addSource(QString fileName);
+
+protected:
+    virtual void dragEnterEvent(QDragEnterEvent *event) override;
+    virtual void dropEvent(QDropEvent *event) override;
+
 private slots:
     void viewClicked(QPointF denormalized);
     void pointSelectionChanged(const QModelIndex &current, const QModelIndex &previous);
     void sourceSelectionChanged(const QModelIndex &current, const QModelIndex &previous);
-    void addSource();
 
     void on_addSourceButton_clicked();
     void on_pointSpinBox_valueChanged(int arg1);

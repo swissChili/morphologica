@@ -14,6 +14,7 @@ class DataEntry : QObject
 
 public:
     DataEntry(QString path, QString name, int numPoints);
+    DataEntry(QPixmap pixmap, QString name, int numPoints);
     DataEntry(const DataEntry &&entry);
     DataEntry(QJsonObject object);
     ~DataEntry();
