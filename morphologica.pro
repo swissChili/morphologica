@@ -11,15 +11,23 @@ CONFIG += c++17
 RESOURCES += res/resources.qrc
 
 SOURCES += \
-		dataentry.cpp graphicsview.cpp mainwindow.cpp \
-		dataentrylistmodel.cpp main.cpp
+    dataentry.cpp graphicsview.cpp mainwindow.cpp \
+    dataentrylistmodel.cpp main.cpp
 
 
 HEADERS += \
-		dataentry.h  dataentrylistmodel.h  graphicsview.h  mainwindow.h
+    dataentry.h dataentrylistmodel.h graphicsview.h mainwindow.h
 
 FORMS += \
     mainwindow.ui
+
+macx {
+    ICON = res/AppIcon.icns
+}
+
+win32 {
+    RC_ICONS = res/AppIcon.ico
+}
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
